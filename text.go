@@ -235,47 +235,11 @@ func (obj TextSpanObject) View(x, y float64, face *FontFace) Matrix {
 
 func itemizeString(log string) []text.ScriptItem {
 	logRunes := []rune(log)
-	embeddingLevels := text.EmbeddingLevels(logRunes)
+	embeddingLevels := make([]int, len(logRunes))
+	for i := range embeddingLevels {
+		embeddingLevels[i] = 0
+	}
 	return text.ScriptItemizer(logRunes, embeddingLevels)
-}
-
-func scriptDirection(mode WritingMode, orient TextOrientation, script text.Script, level int, direction text.Direction) (text.Direction, text.Rotation) {
-	// override text direction for given writing mode
-	// script and level come from ScriptItemizer
-	// direction is the explicit direction set on the face
-	vertical := false
-	rotation := text.NoRotation
-	if mode == VerticalLR || mode == VerticalRL {
-		if !text.IsVerticalScript(script) && orient == Natural {
-			// horizontal script with natural orientation
-			rotation = text.CW
-		} else if rot := text.ScriptRotation(script); rot != text.NoRotation {
-			// rotated horizontal script for vertical mode (such as Mongolian)
-			rotation = rot
-		} else {
-			// horizontal script with upright orientation or vertical script
-			vertical = true
-		}
-	}
-
-	if !vertical {
-		if direction != text.LeftToRight && direction != text.RightToLeft {
-			if (level % 2) == 1 {
-				direction = text.RightToLeft
-			} else {
-				direction = text.LeftToRight
-			}
-		}
-	} else {
-		if direction != text.TopToBottom && direction != text.BottomToTop {
-			if (level % 2) == 1 {
-				direction = text.BottomToTop
-			} else {
-				direction = text.TopToBottom
-			}
-		}
-	}
-	return direction, rotation
 }
 
 func reorderSpans(spans []TextSpan) {
@@ -334,7 +298,7 @@ func NewTextLine(face *FontFace, s string, halign TextAlign) *Text {
 				ppem := face.PPEM(DefaultResolution)
 				line := line{y: y, spans: []TextSpan{}}
 				for _, item := range itemizeString(s[i:j]) {
-					direction, _ := scriptDirection(HorizontalTB, Natural, item.Script, item.Level, face.Direction)
+					direction := text.LeftToRight
 					glyphs := face.Font.shaper.Shape(item.Text, ppem, direction, face.Script, face.Language, face.Font.features, face.Font.variations)
 					width := face.textWidth(glyphs)
 					line.spans = append(line.spans, TextSpan{
@@ -568,7 +532,10 @@ type textRun struct {
 func (rt *RichText) ToText(width, height float64, halign, valign TextAlign, indent, lineStretch float64) *Text {
 	log := rt.String()
 	logRunes := []rune(log)
-	embeddingLevels := text.EmbeddingLevels(logRunes)
+	embeddingLevels := make([]int, len(logRunes))
+	for i := range embeddingLevels {
+		embeddingLevels[i] = 0
+	}
 
 	// itemize string by font face and script
 	// this also splits on embedding level boundaries and runs of U+FFFC (object replacement)
@@ -580,7 +547,7 @@ func (rt *RichText) ToText(width, height float64, halign, valign TextAlign, inde
 		if nextFace != curFace || j == len(logRunes) {
 			items := text.ScriptItemizer(logRunes[i:j], embeddingLevels[i:j])
 			for _, item := range items {
-				direction, rotation := scriptDirection(rt.mode, rt.orient, item.Script, item.Level, rt.faces[curFace].Direction)
+				direction, rotation := text.LeftToRight, text.CW
 				runs = append(runs, textRun{
 					Text:      item.Text,
 					Level:     item.Level,
