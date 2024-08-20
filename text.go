@@ -236,6 +236,7 @@ func (obj TextSpanObject) View(x, y float64, face *FontFace) Matrix {
 func itemizeString(log string) []text.ScriptItem {
 	logRunes := []rune(log)
 	embeddingLevels := make([]int, len(logRunes))
+	// Codeium: For code, no need to have any levels, meaning all levels can be 0
 	for i := range embeddingLevels {
 		embeddingLevels[i] = 0
 	}
@@ -532,6 +533,7 @@ type textRun struct {
 func (rt *RichText) ToText(width, height float64, halign, valign TextAlign, indent, lineStretch float64) *Text {
 	log := rt.String()
 	logRunes := []rune(log)
+	// Codeium: For code, no need to have any levels, meaning all levels can be 0
 	embeddingLevels := make([]int, len(logRunes))
 	for i := range embeddingLevels {
 		embeddingLevels[i] = 0
