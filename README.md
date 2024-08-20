@@ -38,7 +38,7 @@ Please issue bug reports or feature requests to help this library mature! All he
 - Font formats support
 - - SFNT (such as TTF, OTF, WOFF, WOFF2, EOT) supporting TrueType, CFF, and CFF2 tables
 - HarfBuzz for text shaping (native Go and CGO implementations available)
-- FriBidi for text bidirectionality (native Go and CGO implementations available)
+- (Codeium Patch: Removed FriBiDi due to LGPL) FriBidi for text bidirectionality (native Go and CGO implementations available)
 - Donald Knuth's line breaking algorithm for text layout
 - sRGB compliance (use `SRGBColorSpace`, only available for rasterizer)
 - Font rendering with gamma correction of 1.43
@@ -135,4 +135,4 @@ This is a non-exhaustive list of library users I've come across. PRs are welcome
 
 Released under the [MIT license](LICENSE.md).
 
-Be aware that Fribidi uses the LGPL license.
+(Codeium Patch: Removed FriBiDi) Be aware that Fribidi uses the LGPL license.
