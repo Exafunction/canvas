@@ -223,6 +223,9 @@ func FindSystemFont(name string, style FontStyle) (string, bool) {
 	}
 	font, ok := systemFonts.Match(name, font.ParseStyleCSS(style.CSS(), style.Italic()))
 	systemFonts.Unlock()
+	if !ok {
+		return "", false
+	}
 	return font.Filename, ok
 }
 
